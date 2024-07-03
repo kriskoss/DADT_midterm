@@ -8,28 +8,17 @@ const mustacheExpress = require('mustache-express');
 const app = express();
 const webPort = 8088;
 
-const db = mysql.createConnection({
-    host:"localhost",
-    user: "user1_dadt",
-    password: "",
-    database: "dadt_midterm"
-});
-
-db.connect((err)=>{
-    if (err){
-        throw err;
-    }
-    console.log("Connected to the database 'dadt_midterm'");
-})
-
+const db = require('./config/db');
 global.db = db;
 
 require("./routes/main")(app);
 
+app.use(bodyParser.urlencoded({ extended: true }));
+
 app.engine('html', mustacheExpress());
 app.set('view engine', 'html');
-app.set('views', './templates');
-app.use(bodyParser.urlencoded({ extended: true }));
+app.set('views', './views');
 
 app.listen(webPort, ()=> console.log(`DADT_midterm is listening on port ${webPort}!`));
 
+// file splitting: https://blog.logrocket.com/node-js-project-architecture-best-practices/
