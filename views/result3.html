@@ -1,12 +1,22 @@
 <!-- views/result3.html -->
 
 <form action="/" method="POST">
-    <ul>
-        {{#data}}
-            <li>{{table}}: {{rowsCount}}</li>
-        {{/data}}
-    </ul>
-</form> 
-
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Table Name</th>
+                <th>Row Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#data}}
+            <tr>
+                <td>{{table}}</td>
+                <td>{{rowsCount}}</td>
+            </tr>
+            {{/data}}
+        </tbody>
+    </table>
+</form>
 
 <a href="/">Go to home page</a>
