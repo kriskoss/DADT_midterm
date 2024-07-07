@@ -1,0 +1,36 @@
+    <!-- views/query5.html -->
+     
+    <h1>Query 5</h1>
+    <form action="/result5" method="GET">
+        <label for="runwayLength">Runway length:</label>
+        <input type="range" id="runwayLength" name="runwayLength" min="0" max="4000" value="2000"step=100 oninput="updateRunwayLength(this.value)">
+        <span class="slider-value" id="runwayLengthValue">2000</span> m
+        <br><br>
+
+        <label for="scheduledService">Scheduled Service:</label>
+        <input type="checkbox" id="scheduledService" name="scheduledService" checked>
+        <br><br>
+
+        <label for="maxDist">Maximum distance to alternate:</label>
+        <input type="range" id="maxDist" name="maxDist" min="0" max="500" value="150" step=50 oninput="updateSliderValue(this.value)">
+        <span class="slider-value" id="sliderValue">150</span> NM
+        <br><br>
+
+        <label for="iataCode">Destination airport 4 letter IATA code:</label>
+        <input type="text" id="iataCode" name="iataCode" value="EPWA">
+        <br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <p>Other example codes: EGLL, LIRF, EBBR, KLAX and any other commercial airport found on the internet.</p>
+    <br>
+    <a href="/">Go to home page</a>
+
+    <script>
+        function updateSliderValue(value) {
+            document.getElementById('sliderValue').textContent = value;
+        }
+
+        function updateRunwayLength(value) {
+            document.getElementById('runwayLengthValue').textContent = value;
+        }
+    </script>
