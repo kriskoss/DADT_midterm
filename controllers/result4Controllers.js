@@ -58,22 +58,26 @@ return function(error, resultCoordinates, fields){
         let altnQuery = `SELECT 
         a.ident, 
         a.name as apt_name, 
-        c.name AS country_name, 
+        a.iso_country AS ctry,
+        a.local_code AS lcod,
+        c.name AS country_name,
         r.name AS region_name, 
         co.name AS continent_name, 
         a.municipality, at.apt_type, 
         a.elevation_ft, a.latitude_deg, a.longitude_deg
 
         FROM airports a JOIN countries c ON a.iso_country = c.code
-        JOIN regions r ON a.local_code = r.local_code
+        JOIN regions r ON a.local_code = r.local_code AND a.iso_country = r.iso_country
         JOIN airporttypes at ON a.type = at.apt_type
         JOIN continents co ON c.continent = co.code
         
-        WHERE scheduled_service=1 
+        WHERE scheduled_service=1
+        AND at.apt_type="large_airport" OR at.apt_type="medium_airport"
         AND latitude_deg< ? 
         AND latitude_deg > ? 
         AND longitude_deg > ? 
-        AND longitude_deg< ?;`;
+        AND longitude_deg< ?
+        ;`;
         db.query(altnQuery, [northLimit.latitude, southLimit.latitude, westLimit.longitude, eastLimit.longitude], function(err, resultsAltns) {
             if (err) {
                 throw err;
@@ -94,8 +98,9 @@ return function(error, resultCoordinates, fields){
                     aptWithinRange.push(apt);
                 }
                if (i==0){
-                //   response.send(aptWithinRange);
-                  response.render('result4',{airports: aptWithinRange, destination: destApt});
+                    aptWithinRange = aptWithinRange.sort((a, b) => a.distNMToAltn - b.distNMToAltn); // sorting list of airports within a range acording to the distance 
+                    // response.send(aptWithinRange);
+                    response.render('result4',{airports: aptWithinRange, destination: destApt});
                }; 
             };            
         });
