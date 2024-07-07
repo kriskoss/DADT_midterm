@@ -6,22 +6,22 @@
 <a href="javascript:history.back()">Go Back</a>
 
 <br>
-{{#airports}}
-    <h2>{{ident}} - {{apt_name}}</h2>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Ident</th>
-                <th>Distance to Alternate (NM)</th>
-                <th>Country</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Elevation (ft)</th>
-                <th>Type</th>
-                <th>Sched.s</th>
-            </tr>
-        </thead>
-        <tbody>
+<!-- AIRPORT DATA -->
+<table border="1">
+    <thead>
+        <tr>
+            <th>Ident</th>
+            <th>Distance to Alternate (NM)</th>
+            <th>Country</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Elevation (ft)</th>
+            <th>Type</th>
+            <th>Sched.s</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#airports}}
             <tr>
                 <td><b>{{ident}}</b></td>
                 <td><b>{{distNMToAltn}}</b></td>
@@ -32,29 +32,21 @@
                 <td>{{apt_type}}</td>
                 <td>{{s_serv_string}}</td>
             </tr>
-        </tbody>
-    </table>
-    <table border="0">
-        <thead>
-            <tr>
-                <th>Runway code</th>
-                <th>Length (m)</th>
-                <th>Width (m)</th>
-                <th>Surface</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#runways}}
-                <tr>
-                    <td>{{ident}} {{le_ident}}/{{he_ident}}</td>
-                    <td>{{length_m}}</td>
-                    <td>{{width_m}}</td>
-                    <td>{{surface}}</td>
-                </tr>
-            {{/runways}}
-        </tbody>
-    </table>
-    <br><br>
+        {{/airports}}
+    </tbody>
+</table>
+
+<br><br>
+
+
+<!-- RUNWAY DATA -->
+
+{{#airports}}
+    <p><b>{{ident}}</b>&nbsp;&nbsp; {{distNMToAltn}}NM</p>
+    {{#runways}}
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;<b> {{le_ident}}/{{he_ident}} &nbsp;&nbsp; {{length_m}} x {{width_m}}M   </b>  &nbsp;&nbsp;&nbsp;&nbsp;Surface: {{surface}}</p>
+    {{/runways}}
+    <br>
 {{/airports}}
 
 <br><br>

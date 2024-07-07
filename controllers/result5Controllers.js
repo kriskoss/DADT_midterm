@@ -53,9 +53,7 @@ async function templateRenderer(response, htmlQuery, resultCoordinates) {
     let altnMaxDistNM = htmlQuery.maxDist;
     let minRwyLength = htmlQuery.runwayLength;
     let sch_service_toggle = htmlQuery.scheduledService
-    console.log(sch_service_toggle)
     if (sch_service_toggle==undefined){sch_service_toggle=0}else{sch_service_toggle=1}
-    console.log(sch_service_toggle)
     let destCoords = { latitude: resultCoordinates[0].latitude_deg, longitude: resultCoordinates[0].longitude_deg };
     let [northLimit, southLimit, eastLimit, westLimit] = getNSEWlimitingCoord(destCoords, altnMaxDistNM);
 
@@ -101,7 +99,9 @@ async function templateRenderer(response, htmlQuery, resultCoordinates) {
                 let rwyQuery = `SELECT * FROM runways r JOIN airports a ON r.airport_ident=a.ident WHERE a.ident = ?`;
                 rwyPromises.push(queryDB(rwyQuery, [apt.ident]).then(runways => {
                     let filteredRunways = runways.filter(rwy => {
-                        rwy.length_m = Math.round(rwy.length_ft / 3.28);
+                        rwy.length_m = Math.round(rwy.length_ft / 3.28084);
+                        rwy.width_m= Math.round(rwy.width_ft/ 3.28084);
+
                         return rwy.length_m >= minRwyLength;
                     });
 
