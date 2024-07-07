@@ -37,14 +37,16 @@ function calculateDistNM(startPoint, endPoint) {
 
 // Define the starting point
 
-function templateRenderer(response, altnMaxDistNM){
+function templateRenderer(response, altnMaxDistNM, destApt){
 	// Return a renderer function with the res object built in
 return function(error, resultCoordinates, fields){
 		if(error){
 			throw error;
 		}
+
+        // Case when incorrect airpord code entered or no alternate airport found.
         if (resultCoordinates.length == 0) {
-            return response.send('Destination airport not found.');
+            return response.send('Destination or alternate airport not found.');
         }        
 
 
@@ -52,7 +54,26 @@ return function(error, resultCoordinates, fields){
         
         let [northLimit, southLimit, eastLimit, westLimit] = getNSEWlimitingCoord(destCoords, altnMaxDistNM);
 
-        let altnQuery = "SELECT * FROM airports WHERE scheduled_service=1 AND latitude_deg< ? AND latitude_deg > ? AND longitude_deg > ? AND longitude_deg< ? ";
+        // let altnQuery = "SELECT * FROM airports WHERE scheduled_service=1 AND latitude_deg< ? AND latitude_deg > ? AND longitude_deg > ? AND longitude_deg< ? ";
+        let altnQuery = `SELECT 
+        a.ident, 
+        a.name as apt_name, 
+        c.name AS country_name, 
+        r.name AS region_name, 
+        co.name AS continent_name, 
+        a.municipality, at.apt_type, 
+        a.elevation_ft, a.latitude_deg, a.longitude_deg
+
+        FROM airports a JOIN countries c ON a.iso_country = c.code
+        JOIN regions r ON a.local_code = r.local_code
+        JOIN airporttypes at ON a.type = at.apt_type
+        JOIN continents co ON c.continent = co.code
+        
+        WHERE scheduled_service=1 
+        AND latitude_deg< ? 
+        AND latitude_deg > ? 
+        AND longitude_deg > ? 
+        AND longitude_deg< ?;`;
         db.query(altnQuery, [northLimit.latitude, southLimit.latitude, westLimit.longitude, eastLimit.longitude], function(err, resultsAltns) {
             if (err) {
                 throw err;
@@ -65,12 +86,16 @@ return function(error, resultCoordinates, fields){
                 let aptCoors = { latitude: apt.latitude_deg, longitude: apt.longitude_deg};
 
                 let distNM = Math.round(calculateDistNM(destCoords, aptCoors));
-                if (distNM<altnMaxDistNM && distNM > 0){
+                if (distNM == 0){
+                    destApt = apt;
+                }
+                else if (distNM<altnMaxDistNM){
                     apt.distNMToAltn = distNM;
                     aptWithinRange.push(apt);
                 }
                if (i==0){
-                  response.send(aptWithinRange);
+                //   response.send(aptWithinRange);
+                  response.render('result4',{airports: aptWithinRange, destination: destApt});
                }; 
             };            
         });
@@ -80,9 +105,9 @@ return function(error, resultCoordinates, fields){
 }
 
 exports.get= (req, res) => { 
-    let fromFormAptIdent=req.query.iataCode;
+    let destAptIdent=req.query.iataCode;
     let maxAltrDistNM = req.query.maxDist;
     let query = "SELECT * FROM airports WHERE ident=?";
-    db.query(query, fromFormAptIdent, templateRenderer(res, maxAltrDistNM));
+    db.query(query, destAptIdent, templateRenderer(res, maxAltrDistNM, destAptIdent));
 
 };

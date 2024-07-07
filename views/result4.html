@@ -1,12 +1,46 @@
 <!-- views/result4.html -->
 
-<form action="/" method="POST">
-    <ul>
-        {{#data}}
-            <li>{{i}}: {{table}}</li>
-        {{/data}}
-    </ul>
-</form> 
+<h1>Destination Airport: {{destination.name}} ({{destination.ident}})</h1>
+
+    <b><a href="/query4">Go to query</a></b>
+    <br>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Ident</th>
+                <th>Name</th>
+                <th>Distance to Alternate (NM)</th>
+                <th>Continent</th>
+                <th>Country</th>
+                <th>Region</th>
+                <th>Municipality</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Elevation (ft)</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#airports}}
+            <tr>
+                <td><b>{{ident}}</b></td>
+                <td>{{apt_name}}</td>
+                <td><b>{{distNMToAltn}}</b></td>
+                <td>{{continent_name}}</td>
+                <td>{{country_name}}</td>
+                <td>{{region_name}}</td>
+                <td>{{municipality}}</td>
+                <td>{{latitude_deg}}</td>
+                <td>{{longitude_deg}}</td>
+                <td>{{elevation_ft}}</td>
+                <td>{{apt_type}}</td>
+            </tr>
+            {{/airports}}
+        </tbody>
+    </table>
 
 
-<a href="/">Go to home page</a>
+
+    <br>
+    <br>
+    <a href="/">Go to home page</a>
