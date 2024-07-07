@@ -1,60 +1,61 @@
 <!-- views/result5.html -->
 
 <h1>Destination Airport: {{destination.apt_name}} ({{destination.ident}})</h1>
+<h2>Minimum Runway Length: {{minRwyLength}} meters</h2>
 
-<b><a href="/query5">Go to query</a></b>
-<br>
-        {{#airports}}
-        <h2>{{ident}} - {{apt_name}}</h2>
-<table border="1">
-    <thead>
-        <tr>
-            <th>Ident</th>
-            <th>Distance to Alternate (NM)</th>
-            <th>Country</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-            <th>Elevation (ft)</th>
-            <th>Type</th>
-        </tr>
-    </thead>
-    <tbody>
-
-        <tr>
-            <td><b>{{ident}}</b></td>
-            <td><b>{{distNMToAltn}}</b></td>
-            <td>{{iso_country}}</td>
-            <td>{{latitude_deg}}</td>
-            <td>{{longitude_deg}}</td>
-            <td>{{elevation_ft}}</td>
-            <td>{{apt_type}}</td>
-        </tr>
-    </tbody>
-</table>
-                <table border="0">
-                    <thead>
-                        <tr>
-                            <th>Runway Ident</th>
-                            <th>Length (ft)</th>
-                            <th>Width (ft)</th>
-                            <th>Surface</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                {{#runways}}
-                        <tr>
-                            <td>{{ident}}</td>
-                            <td>{{length_ft}}</td>
-                            <td>{{width_ft}}</td>
-                            <td>{{surface}}</td>
-                        </tr>
-                {{/runways}}
-                    </tbody>
-                </table>
-            <br>
-            <br>
-        {{/airports}}
+<a href="javascript:history.back()">Go Back</a>
 
 <br>
-<br>
+{{#airports}}
+    <h2>{{ident}} - {{apt_name}}</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Ident</th>
+                <th>Distance to Alternate (NM)</th>
+                <th>Country</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Elevation (ft)</th>
+                <th>Type</th>
+                <th>Sched.s</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><b>{{ident}}</b></td>
+                <td><b>{{distNMToAltn}}</b></td>
+                <td>{{iso_country}}</td>
+                <td>{{latitude_deg}}</td>
+                <td>{{longitude_deg}}</td>
+                <td>{{elevation_ft}}</td>
+                <td>{{apt_type}}</td>
+                <td>{{s_serv_string}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <table border="0">
+        <thead>
+            <tr>
+                <th>Runway code</th>
+                <th>Length (m)</th>
+                <th>Width (m)</th>
+                <th>Surface</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#runways}}
+                <tr>
+                    <td>{{ident}} {{le_ident}}/{{he_ident}}</td>
+                    <td>{{length_m}}</td>
+                    <td>{{width_m}}</td>
+                    <td>{{surface}}</td>
+                </tr>
+            {{/runways}}
+        </tbody>
+    </table>
+    <br><br>
+{{/airports}}
+
+<br><br>
 <a href="/">Go to home page</a>

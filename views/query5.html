@@ -1,5 +1,5 @@
     <!-- views/query5.html -->
-     
+
     <h1>Query 5</h1>
     <form action="/result5" method="GET">
         <label for="runwayLength">Runway length:</label>
@@ -8,7 +8,7 @@
         <br><br>
 
         <label for="scheduledService">Scheduled Service:</label>
-        <input type="checkbox" id="scheduledService" name="scheduledService" checked>
+        <input type="checkbox" id="scheduledService" name="scheduledService"  checked >
         <br><br>
 
         <label for="maxDist">Maximum distance to alternate:</label>
@@ -33,4 +33,9 @@
         function updateRunwayLength(value) {
             document.getElementById('runwayLengthValue').textContent = value;
         }
+
+        document.getElementById('scheduledService').addEventListener('change', function() {
+            this.value = this.checked ? 'false' : 'true';
+        });
+
     </script>

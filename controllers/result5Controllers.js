@@ -15,7 +15,7 @@ function queryDB(query, params) {
 }
 
 // Displays available tables in the database.
-function getNSEWlimitingCoord(startPoint, altnMaxDistNM){
+function getNSEWlimitingCoord(startPoint, altnMaxDistNM) {
     assert(
         startPoint.latitude <= 70 && startPoint.latitude >= -70,
         "Latitude out of range. An implementation for high latitudes is necessary"
@@ -51,6 +51,11 @@ async function templateRenderer(response, htmlQuery, resultCoordinates) {
 
     let destApt = htmlQuery.iataCode;
     let altnMaxDistNM = htmlQuery.maxDist;
+    let minRwyLength = htmlQuery.runwayLength;
+    let sch_service_toggle = htmlQuery.scheduledService
+    console.log(sch_service_toggle)
+    if (sch_service_toggle==undefined){sch_service_toggle=0}else{sch_service_toggle=1}
+    console.log(sch_service_toggle)
     let destCoords = { latitude: resultCoordinates[0].latitude_deg, longitude: resultCoordinates[0].longitude_deg };
     let [northLimit, southLimit, eastLimit, westLimit] = getNSEWlimitingCoord(destCoords, altnMaxDistNM);
 
@@ -63,13 +68,14 @@ async function templateRenderer(response, htmlQuery, resultCoordinates) {
         r.name AS region_name, 
         co.name AS continent_name, 
         a.municipality, at.apt_type, 
-        a.elevation_ft, a.latitude_deg, a.longitude_deg
+        a.elevation_ft, a.latitude_deg, a.longitude_deg,
+        a.scheduled_service
         FROM airports a 
         JOIN countries c ON a.iso_country = c.code
         JOIN regions r ON a.local_code = r.local_code AND a.iso_country = r.iso_country
         JOIN airporttypes at ON a.type = at.apt_type
         JOIN continents co ON c.continent = co.code
-        WHERE scheduled_service=1
+        WHERE scheduled_service=? OR scheduled_service=1
         AND (at.apt_type="large_airport" OR at.apt_type="medium_airport")
         AND latitude_deg < ? 
         AND latitude_deg > ? 
@@ -78,7 +84,7 @@ async function templateRenderer(response, htmlQuery, resultCoordinates) {
     ;`;
 
     try {
-        let resultsAltns = await queryDB(altnQuery, [northLimit.latitude, southLimit.latitude, westLimit.longitude, eastLimit.longitude]);
+        let resultsAltns = await queryDB(altnQuery, [sch_service_toggle,northLimit.latitude, southLimit.latitude, westLimit.longitude, eastLimit.longitude]);
         let aptWithinRange = [];
         let rwyPromises = [];
 
@@ -90,19 +96,28 @@ async function templateRenderer(response, htmlQuery, resultCoordinates) {
                 destApt = apt;
             } else if (distNM < altnMaxDistNM) {
                 apt.distNMToAltn = distNM;
-                aptWithinRange.push(apt);
+                if (apt.scheduled_service == 0) { apt.s_serv_string = "NO"; } else { apt.s_serv_string = "YES"; }
+
                 let rwyQuery = `SELECT * FROM runways r JOIN airports a ON r.airport_ident=a.ident WHERE a.ident = ?`;
                 rwyPromises.push(queryDB(rwyQuery, [apt.ident]).then(runways => {
-                    apt.runways = runways;
-                    return apt;
+                    let filteredRunways = runways.filter(rwy => {
+                        rwy.length_m = Math.round(rwy.length_ft / 3.28);
+                        return rwy.length_m >= minRwyLength;
+                    });
+
+                    if (filteredRunways.length > 0) {
+                        apt.runways = filteredRunways;
+                        return apt; // Return apt only if it has runways that meet the condition
+                    }
+                    return null; // Return null if no runway meets the condition
                 }));
             }
         });
 
-        let airportsWithRunways = await Promise.all(rwyPromises);
+        let airportsWithRunways = (await Promise.all(rwyPromises)).filter(apt => apt !== null); // Filter out null values
 
         airportsWithRunways.sort((a, b) => a.distNMToAltn - b.distNMToAltn);
-        response.render('result5', { airports: airportsWithRunways, destination: destApt });
+        response.render('result5', { airports: airportsWithRunways, destination: destApt, minRwyLength: minRwyLength });
     } catch (error) {
         response.status(500).send('Internal Server Error');
     }
